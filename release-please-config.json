@@ -1,0 +1,13 @@
+{
+    "packages": {
+        ".": {
+            "release-type": "simple",
+            "package-name": "MojangLogoAnimation",
+            "include-component-in-tag": false,
+            "extra-files": [
+                "gradle.properties"
+            ]
+        }
+    },
+    "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
+}
