@@ -1,0 +1,7 @@
+{
+    "text.autoconfig.mojanglogoanimation.title": "MojangLogoAnimation 設定",
+    "text.autoconfig.mojanglogoanimation.option.animationId": "アニメーションID",
+    "text.autoconfig.mojanglogoanimation.option.animationEnabled": "アニメーション有効",
+    "text.autoconfig.mojanglogoanimation.option.soundEnabled": "サウンド有効",
+    "text.autoconfig.mojanglogoanimation.option.soundVolume": "サウンド音量"
+}

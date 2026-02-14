@@ -1,0 +1,12 @@
+{
+    "gui.title.mojang": {
+        "sounds": [
+            "mojanglogoanimation:gui/title/mojang"
+        ]
+    },
+    "gui.title.mojang_april_fool": {
+        "sounds": [
+            "mojanglogoanimation:gui/title/mojang_april_fool"
+        ]
+    }
+}

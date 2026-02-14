@@ -4,6 +4,7 @@
   "package": "com.karasu256.mojanglogoanimation.mixin.client",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "SplashOverlayMixin"
   ],
   "injectors": {
     "defaultRequire": 1
