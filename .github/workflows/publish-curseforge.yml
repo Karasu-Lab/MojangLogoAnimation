@@ -1,0 +1,44 @@
+name: Publish to CurseForge
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      changelog:
+        required: true
+        type: string
+      minecraft_version:
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-libs
+          path: build/libs/
+
+      - name: Find JAR
+        id: find_jar
+        run: |
+          JAR_PATH=$(ls build/libs/goldendandelionindicator-*.jar | grep -v "sources" | grep -v "dev" | head -n 1)
+          echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload to CurseForge
+        uses: itsmeow/curseforge-upload@v3
+        with:
+          file_path: "${{ steps.find_jar.outputs.jar_path }}"
+          game_endpoint: "minecraft"
+          relations: "fabric-api:requiredDependency"
+          game_versions: "Java 25,Fabric,${{ inputs.minecraft_version }}"
+          project_id: "${{ vars.CURSEFORGE_PROJECT_ID }}"
+          token: "${{ secrets.CURSEFORGE_TOKEN }}"
+          changelog: "${{ inputs.changelog }}"
+          changelog_type: "markdown"
