@@ -43,7 +43,7 @@ jobs:
           file_path: "${{ steps.find_jar.outputs.jar_path }}"
           game_endpoint: "minecraft"
           relations: "fabric-api:requiredDependency"
-          game_versions: "Fabric,${{ inputs.minecraft_version }}"
+          game_versions: "Java 21,Fabric,${{ inputs.minecraft_version }}"
           project_id: "${{ vars.CURSEFORGE_PROJECT_ID }}"
           token: "${{ secrets.CURSEFORGE_TOKEN }}"
           changelog: "${{ inputs.changelog }}"
