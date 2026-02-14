@@ -1,0 +1,43 @@
+name: Upload to GitHub Release
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      changelog:
+        required: true
+        type: string
+      minecraft_version:
+        required: true
+        type: string
+      mod_version:
+        required: true
+        type: string
+      archives_base_name:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-libs
+          path: build/libs/
+
+      - name: Upload to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ inputs.version }} \
+            build/libs/${{ inputs.archives_base_name }}-*.jar \
+            --clobber

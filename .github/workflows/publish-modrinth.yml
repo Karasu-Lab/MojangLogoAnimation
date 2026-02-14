@@ -12,6 +12,12 @@ on:
       minecraft_version:
         required: true
         type: string
+      mod_version:
+        required: true
+        type: string
+      archives_base_name:
+        required: true
+        type: string
 
 jobs:
   publish:
@@ -19,16 +25,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download artifacts
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-libs
           path: build/libs/
 
-      - name: Find JAR
+      - name: Find mod JAR
         id: find_jar
         run: |
-          JAR_PATH=$(ls build/libs/goldendandelionindicator-*.jar | grep -v "sources" | grep -v "dev" | head -n 1)
+          JAR_PATH=$(ls build/libs/${{ inputs.archives_base_name }}-*.jar | grep -v "sources" | grep -v "dev" | head -n 1)
           echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload to Modrinth
