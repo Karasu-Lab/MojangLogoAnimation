@@ -31,19 +31,19 @@ jobs:
           name: build-libs
           path: build/libs/
 
-      - name: Find mod JAR
-        id: find_jar
-        run: |
-          JAR_PATH=$(ls build/libs/${{ inputs.archives_base_name }}-*.jar | grep -v "sources" | grep -v "dev" | head -n 1)
-          echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
-
-      - name: Upload to Modrinth
-        uses: cloudnode-pro/modrinth-publish@v2
+      - name: Publish to Modrinth
+        uses: Kir-Antipov/mc-publish@v3.3
         with:
-          token: ${{ secrets.MODRINTH_TOKEN }}
-          project: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          files: |
+            build/libs/${{ inputs.archives_base_name }}-${{ inputs.mod_version }}.jar
+          name: "${{ inputs.archives_base_name }}-${{ inputs.mod_version }}"
           version: ${{ inputs.version }}
+          version-type: release
+          changelog: ${{ inputs.changelog }}
           loaders: fabric
           game-versions: ${{ inputs.minecraft_version }}
-          files: ${{ steps.find_jar.outputs.jar_path }}
-          changelog: ${{ inputs.changelog }}
+          dependencies: |
+            fabric-api@*(required)
+          java: 21
