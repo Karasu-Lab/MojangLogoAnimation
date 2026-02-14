@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "mojanglogoanimation",
+  "version": "${version}",
+  "name": "MojangLogoAnimation",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/mojanglogoanimation/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-datagen": [
+      "com.karasu256.mojanglogoanimation.client.MojanglogoanimationDataGenerator"
+    ],
+    "client": [
+      "com.karasu256.mojanglogoanimation.client.MojanglogoanimationClient"
+    ],
+    "main": [
+      "com.karasu256.mojanglogoanimation.Mojanglogoanimation"
+    ]
+  },
+  "mixins": [
+    "mojanglogoanimation.mixins.json",
+    {
+      "config": "mojanglogoanimation.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
