@@ -1,0 +1,76 @@
+name: Get Dependencies
+
+on:
+  workflow_call:
+    outputs:
+      mc_publish_deps:
+        description: "mc-publish format dependencies string"
+        value: ${{ jobs.get-deps.outputs.mc_publish_deps }}
+      curseforge_deps:
+        description: "CurseForge relation string (slug:type)"
+        value: ${{ jobs.get-deps.outputs.curseforge_deps }}
+
+jobs:
+  get-deps:
+    runs-on: ubuntu-latest
+    outputs:
+      mc_publish_deps: ${{ steps.resolve.outputs.mc_publish_deps }}
+      curseforge_deps: ${{ steps.resolve.outputs.curseforge_deps }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract and resolve dependencies
+        id: resolve
+        run: |
+          set -euo pipefail
+
+          DEP_MAP=".github/dep-map.json"
+
+          # Extract modImplementation and modApi lines from build.gradle
+          # Captures: group:artifact from Maven coordinate patterns
+          GRADLE_DEPS=$(grep -oP '(modImplementation|modApi)\s*[\("]+([^"]+):([^":]+):' build.gradle \
+            | grep -oP '[a-z][a-z0-9._-]+:[a-z][a-z0-9._-]+' \
+            | sort -u)
+
+          MC_PUBLISH_DEPS=""
+          CF_DEPS=""
+
+          while IFS= read -r maven_coord; do
+            [ -z "$maven_coord" ] && continue
+
+            # Look up in dep-map.json
+            ENTRY=$(jq -r --arg key "$maven_coord" '.[$key] // empty' "$DEP_MAP")
+            [ -z "$ENTRY" ] && continue
+
+            NAME=$(echo "$ENTRY" | jq -r '.name')
+            TYPE=$(echo "$ENTRY" | jq -r '.type')
+            MODRINTH_ID=$(echo "$ENTRY" | jq -r '.modrinth')
+            CF_ID=$(echo "$ENTRY" | jq -r '.curseforge')
+
+            # mc-publish format: name@version(type){modrinth:id}{curseforge:id}
+            MC_PUBLISH_DEPS="${MC_PUBLISH_DEPS}${NAME}@*($TYPE){modrinth:${MODRINTH_ID}}{curseforge:${CF_ID}}
+          "
+
+            # CurseForge relation format: slug:requiredDependency
+            CF_TYPE="requiredDependency"
+            [ "$TYPE" = "optional" ] && CF_TYPE="optionalDependency"
+            CF_DEPS="${CF_DEPS}${NAME}:${CF_TYPE},"
+
+          done <<< "$GRADLE_DEPS"
+
+          # Remove trailing newline/comma
+          CF_DEPS="${CF_DEPS%,}"
+
+          # Write to outputs
+          {
+            echo "mc_publish_deps<<DEPS_EOF"
+            echo "$MC_PUBLISH_DEPS"
+            echo "DEPS_EOF"
+          } >> $GITHUB_OUTPUT
+
+          echo "curseforge_deps=$CF_DEPS" >> $GITHUB_OUTPUT
+
+          echo "=== Resolved Dependencies ==="
+          echo "mc-publish format:"
+          echo "$MC_PUBLISH_DEPS"
+          echo "CurseForge format: $CF_DEPS"

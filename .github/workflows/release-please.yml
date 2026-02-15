@@ -46,6 +46,11 @@ jobs:
           echo "minecraft_version=$MINECRAFT_VERSION" >> $GITHUB_OUTPUT
           echo "mod_version=$MOD_VERSION" >> $GITHUB_OUTPUT
 
+  get-deps:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    uses: ./.github/workflows/get-deps.yml
+
   build:
     needs: [release-please, extract-properties]
     if: ${{ needs.release-please.outputs.release_created }}
@@ -84,7 +89,7 @@ jobs:
     secrets: inherit
 
   publish-curseforge:
-    needs: [release-please, extract-properties, build]
+    needs: [release-please, extract-properties, get-deps, build]
     if: ${{ needs.release-please.outputs.release_created }}
     uses: ./.github/workflows/publish-curseforge.yml
     with:
@@ -93,10 +98,11 @@ jobs:
       minecraft_version: ${{ needs.extract-properties.outputs.minecraft_version }}
       mod_version: ${{ needs.extract-properties.outputs.mod_version }}
       archives_base_name: ${{ needs.extract-properties.outputs.archives_base_name }}
+      dependencies: ${{ needs.get-deps.outputs.mc_publish_deps }}
     secrets: inherit
 
   publish-modrinth:
-    needs: [release-please, extract-properties, build]
+    needs: [release-please, extract-properties, get-deps, build]
     if: ${{ needs.release-please.outputs.release_created }}
     uses: ./.github/workflows/publish-modrinth.yml
     with:
@@ -105,4 +111,5 @@ jobs:
       minecraft_version: ${{ needs.extract-properties.outputs.minecraft_version }}
       mod_version: ${{ needs.extract-properties.outputs.mod_version }}
       archives_base_name: ${{ needs.extract-properties.outputs.archives_base_name }}
+      dependencies: ${{ needs.get-deps.outputs.mc_publish_deps }}
     secrets: inherit

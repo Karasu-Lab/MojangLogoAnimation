@@ -18,6 +18,10 @@ on:
       archives_base_name:
         required: true
         type: string
+      dependencies:
+        required: true
+        type: string
+        description: "mc-publish format dependency string"
 
 jobs:
   publish:
@@ -44,6 +48,5 @@ jobs:
           changelog: ${{ inputs.changelog }}
           loaders: fabric
           game-versions: ${{ inputs.minecraft_version }}
-          dependencies: |
-            fabric-api@*(required)
+          dependencies: ${{ inputs.dependencies }}
           java: 21
