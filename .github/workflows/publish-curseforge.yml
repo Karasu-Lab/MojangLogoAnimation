@@ -41,7 +41,6 @@ jobs:
           curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           files: |
-          files: |
             build/libs/${{ inputs.archives_base_name }}-${{ inputs.mod_version }}-${{ inputs.minecraft_version }}.jar
           name: "${{ inputs.archives_base_name }}-${{ inputs.mod_version }}-${{ inputs.minecraft_version }}"
           version: ${{ inputs.version }}
