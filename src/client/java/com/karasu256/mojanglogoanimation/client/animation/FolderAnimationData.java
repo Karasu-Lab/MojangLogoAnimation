@@ -2,10 +2,8 @@ package com.karasu256.mojanglogoanimation.client.animation;
 
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public record FolderAnimationData(Identifier id, int frameCount,
         @Nullable SoundEvent soundEvent) implements ISplashScreenAnimationData {
@@ -16,7 +14,7 @@ public record FolderAnimationData(Identifier id, int frameCount,
         this(id, frameCount, resolveSoundByConvention(id));
     }
 
-    private static @Nullable SoundEvent resolveSoundByConvention(Identifier animationId) {
+    private static @NotNull SoundEvent resolveSoundByConvention(Identifier animationId) {
         Identifier soundId = Identifier.of(animationId.getNamespace(), "gui.title." + animationId.getPath());
         return SoundEvent.of(soundId);
     }
@@ -32,15 +30,9 @@ public record FolderAnimationData(Identifier id, int frameCount,
     }
 
     @Override
-    public List<ResourceEntry> getResourceEntries() {
-        return new ArrayList<>();
-    }
-
-    @Override
     public Identifier getFrameTexture(int frameIndex) {
-        Identifier texture = Identifier.of(id.getNamespace(),
+        return Identifier.of(id.getNamespace(),
                 "textures/gui/title/" + id.getPath() + "/mojang" + frameIndex + ".png");
-        return texture;
     }
 
     @Override

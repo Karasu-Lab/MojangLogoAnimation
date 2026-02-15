@@ -17,8 +17,6 @@ public interface ISplashScreenAnimationData {
 
     @Nullable SoundEvent soundEvent();
 
-    List<ResourceEntry> getResourceEntries();
-
     Identifier getFrameTexture(int frameIndex);
 
     Identifier getStaticTexture();
