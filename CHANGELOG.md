@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Karasu-Lab/MojangLogoAnimation/compare/v1.1.0...v1.2.0) (2026-02-15)
+
+
+### Features
+
+* added data driven resource load logics and rendering logics ([2f51e03](https://github.com/Karasu-Lab/MojangLogoAnimation/commit/2f51e0364efdbfbc986a59a3df4cbc1c5c0c1e39))
+
 ## [1.1.0](https://github.com/Karasu-Lab/MojangLogoAnimation/compare/v1.0.3...v1.1.0) (2026-02-15)
 
 
