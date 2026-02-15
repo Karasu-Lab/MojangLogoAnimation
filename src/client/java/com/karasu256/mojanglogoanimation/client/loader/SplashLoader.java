@@ -16,7 +16,7 @@ public class SplashLoader {
     public ISplashScreenAnimationData getAnimation(Identifier id) {
         return animations.get(id);
     }
-    
+
     public void clear() {
         animations.clear();
     }
