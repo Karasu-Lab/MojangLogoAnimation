@@ -5,7 +5,6 @@ import com.karasu256.mojanglogoanimation.client.MojanglogoanimationClient;
 import com.karasu256.mojanglogoanimation.client.animation.AnimationPlayer;
 import com.karasu256.mojanglogoanimation.client.animation.ISplashScreenAnimationData;
 import com.karasu256.mojanglogoanimation.client.config.ModConfig;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.SplashOverlay;
 import net.minecraft.client.render.RenderLayer;
@@ -30,9 +29,7 @@ public abstract class SplashOverlayMixin {
     private ResourceReload reload;
     @Shadow
     private float progress;
-    @Shadow
-    @Final
-    private MinecraftClient client;
+
     @Shadow
     @Final
     private boolean reloading;
@@ -43,7 +40,7 @@ public abstract class SplashOverlayMixin {
     @Unique
     private AnimationPlayer animationPlayer;
 
-    @Redirect(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screen/SplashOverlay;LOGO:Lnet/minecraft/util/Identifier;"))
+    @Redirect(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screen/SplashOverlay;LOGO:Lnet/minecraft/util/Identifier;", opcode = Opcodes.GETSTATIC))
     private Identifier logo() {
         if (!this.reload.isComplete()) {
             return Identifier.ofVanilla("textures/gui/title/mojangstudios.png");
