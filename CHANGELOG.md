@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/Karasu-Lab/MojangLogoAnimation/compare/v1.0.3...v1.1.0) (2026-02-15)
+
+
+### Features
+
+* added actions for auto config deps ([45fc0ba](https://github.com/Karasu-Lab/MojangLogoAnimation/commit/45fc0ba0d5502f6f7e7500398ebb7da2f3eb7d65))
+
 ## [1.0.3](https://github.com/Karasu-Lab/MojangLogoAnimation/compare/v1.0.2...v1.0.3) (2026-02-14)
 
 
