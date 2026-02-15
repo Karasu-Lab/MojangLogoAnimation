@@ -39,9 +39,9 @@ jobs:
       - name: Extract Gradle Properties
         id: props
         run: |
-          ARCHIVES_BASE_NAME=$(grep "^archives_base_name=" gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
-          MINECRAFT_VERSION=$(grep "^minecraft_version=" gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
-          MOD_VERSION=$(grep "^mod_version=" gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
+          ARCHIVES_BASE_NAME=$(awk -F= '/^archives_base_name/ {gsub(/[[:space:]]/, "", $2); print $2}' gradle.properties)
+          MINECRAFT_VERSION=$(awk -F= '/^minecraft_version/ {gsub(/[[:space:]]/, "", $2); print $2}' gradle.properties)
+          MOD_VERSION=$(awk -F= '/^mod_version/ {gsub(/[[:space:]]/, "", $2); print $2}' gradle.properties)
           echo "archives_base_name=$ARCHIVES_BASE_NAME" >> $GITHUB_OUTPUT
           echo "minecraft_version=$MINECRAFT_VERSION" >> $GITHUB_OUTPUT
           echo "mod_version=$MOD_VERSION" >> $GITHUB_OUTPUT

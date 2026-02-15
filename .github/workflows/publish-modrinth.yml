@@ -41,8 +41,9 @@ jobs:
           modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           files: |
-            build/libs/${{ inputs.archives_base_name }}-${{ inputs.mod_version }}.jar
-          name: "${{ inputs.archives_base_name }}-${{ inputs.mod_version }}"
+          files: |
+            build/libs/${{ inputs.archives_base_name }}-${{ inputs.mod_version }}-${{ inputs.minecraft_version }}.jar
+          name: "${{ inputs.archives_base_name }}-${{ inputs.mod_version }}-${{ inputs.minecraft_version }}"
           version: ${{ inputs.version }}
           version-type: release
           changelog: ${{ inputs.changelog }}
