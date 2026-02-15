@@ -11,6 +11,8 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.SplashOverlay;
 import net.minecraft.resource.ResourceReload;
 import net.minecraft.util.Identifier;
+import net.minecraft.client.render.RenderLayer;
+import java.util.function.Function;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -62,21 +64,15 @@ public abstract class SplashOverlayMixin {
         private void fill(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         }
 
-        @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lnet/minecraft/util/Identifier;IIIIFFIIII)V", ordinal = 0))
-        private void drawTexture0(DrawContext context, Identifier texture, int x, int y,
-                        int width, int height, float u, float v,
-                        int regionWidth, int regionHeight,
-                        int textureWidth, int textureHeight) {
+        @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIFFIIIIIII)V", ordinal = 0))
+        private void drawTexture0(DrawContext context, Function<Identifier, RenderLayer> renderLayers,
+                        Identifier texture, int x, int y, float u, float v, int width, int height,
+                        int uWidth, int vHeight, int textureWidth, int textureHeight, int color) {
                 if (!this.reload.isComplete()) {
-                        context.drawTexture(texture, x, y, width, height, u, v, regionWidth, regionHeight, textureWidth,
-                                        textureHeight);
+                        context.drawTexture(renderLayers, texture, x, y, u, v, width, height, uWidth, vHeight,
+                                        textureWidth, textureHeight, color);
                         return;
                 }
-
-                double d = Math.min((double) context.getScaledWindowWidth() * 0.75, context.getScaledWindowHeight())
-                                * 0.25;
-                double e = d * 4.0;
-                int r = (int) (e);
 
                 ensureAnimationPlayer();
 
@@ -89,18 +85,18 @@ public abstract class SplashOverlayMixin {
                                 ? animationPlayer.getCurrentTexture()
                                 : texture;
 
-                context.drawTexture(currentTexture, x, y, r, (int) d,
-                                u, v, regionWidth, regionHeight + 60, textureWidth, textureHeight);
+                context.drawTexture(RenderLayer::getGuiTextured, currentTexture, x, y, 0.0F, 0.0F, width * 2, height,
+                                textureWidth, textureHeight,
+                                textureWidth, textureHeight, color);
         }
 
-        @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lnet/minecraft/util/Identifier;IIIIFFIIII)V", ordinal = 1))
-        private void drawTexture1(DrawContext context, Identifier texture, int x, int y,
-                        int width, int height, float u, float v,
-                        int regionWidth, int regionHeight,
-                        int textureWidth, int textureHeight) {
+        @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIFFIIIIIII)V", ordinal = 1))
+        private void drawTexture1(DrawContext context, Function<Identifier, RenderLayer> renderLayers,
+                        Identifier texture, int x, int y, float u, float v, int width, int height,
+                        int uWidth, int vHeight, int textureWidth, int textureHeight, int color) {
                 if (!this.reload.isComplete()) {
-                        context.drawTexture(texture, x, y, width, height, u, v, regionWidth, regionHeight, textureWidth,
-                                        textureHeight);
+                        context.drawTexture(renderLayers, texture, x, y, u, v, width, height, uWidth, vHeight,
+                                        textureWidth, textureHeight, color);
                 }
         }
 
