@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public interface ISplashScreenAnimationData {
-    String id();
+    Identifier id();
 
     int frameCount();
 

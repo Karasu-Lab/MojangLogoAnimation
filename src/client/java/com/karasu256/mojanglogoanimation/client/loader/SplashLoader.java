@@ -1,29 +1,23 @@
 package com.karasu256.mojanglogoanimation.client.loader;
 
-import com.karasu256.mojanglogoanimation.client.animation.FolderAnimationData;
 import com.karasu256.mojanglogoanimation.client.animation.ISplashScreenAnimationData;
+import net.minecraft.util.Identifier;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SplashLoader {
-    private final Map<String, ISplashScreenAnimationData> animations = new LinkedHashMap<>();
-
-    public void registerDefaults() {
-        register(new FolderAnimationData("mojang", 39));
-        register(new FolderAnimationData("mojang_april_fool", 39));
-    }
+    private final Map<Identifier, ISplashScreenAnimationData> animations = new HashMap<>();
 
     public void register(ISplashScreenAnimationData data) {
         animations.put(data.id(), data);
     }
 
-    public ISplashScreenAnimationData getAnimation(String id) {
-        ISplashScreenAnimationData data = animations.get(id);
-        if (data == null && !animations.isEmpty()) {
-            return animations.values().iterator().next();
-        }
-        return data;
+    public ISplashScreenAnimationData getAnimation(Identifier id) {
+        return animations.get(id);
     }
-
+    
+    public void clear() {
+        animations.clear();
+    }
 }
