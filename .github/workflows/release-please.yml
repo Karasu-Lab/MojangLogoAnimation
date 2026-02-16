@@ -52,16 +52,16 @@ jobs:
     uses: ./.github/workflows/get-deps.yml
 
   build:
-    needs: [release-please, extract-properties]
+    needs: [release-please, extract-properties, get-deps]
     if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: ${{ needs.get-deps.outputs.java_version }}
           distribution: 'temurin'
 
       - name: Grant execute permission for gradlew
@@ -99,6 +99,7 @@ jobs:
       mod_version: ${{ needs.extract-properties.outputs.mod_version }}
       archives_base_name: ${{ needs.extract-properties.outputs.archives_base_name }}
       dependencies: ${{ needs.get-deps.outputs.mc_publish_deps }}
+      java: ${{ needs.get-deps.outputs.java_version }}
     secrets: inherit
 
   publish-modrinth:
@@ -112,4 +113,5 @@ jobs:
       mod_version: ${{ needs.extract-properties.outputs.mod_version }}
       archives_base_name: ${{ needs.extract-properties.outputs.archives_base_name }}
       dependencies: ${{ needs.get-deps.outputs.mc_publish_deps }}
+      java: ${{ needs.get-deps.outputs.java_version }}
     secrets: inherit

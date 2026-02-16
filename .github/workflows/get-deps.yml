@@ -9,6 +9,9 @@ on:
       curseforge_deps:
         description: "CurseForge relation string (slug:type)"
         value: ${{ jobs.get-deps.outputs.curseforge_deps }}
+      java_version:
+        description: "Java version from build-config.json"
+        value: ${{ jobs.get-deps.outputs.java_version }}
 
 jobs:
   get-deps:
@@ -16,8 +19,15 @@ jobs:
     outputs:
       mc_publish_deps: ${{ steps.resolve.outputs.mc_publish_deps }}
       curseforge_deps: ${{ steps.resolve.outputs.curseforge_deps }}
+      java_version: ${{ steps.config.outputs.java_version }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Extract Build Config
+        id: config
+        run: |
+          JAVA_VERSION=$(jq -r '.java // 21' .github/build-config.json)
+          echo "java_version=$JAVA_VERSION" >> $GITHUB_OUTPUT
 
       - name: Extract and resolve dependencies
         id: resolve

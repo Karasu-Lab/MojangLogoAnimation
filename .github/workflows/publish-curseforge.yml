@@ -22,6 +22,10 @@ on:
         required: true
         type: string
         description: "mc-publish format dependency string"
+      java:
+        required: true
+        type: string
+        description: "Java version"
 
 jobs:
   publish:
@@ -49,4 +53,4 @@ jobs:
           loaders: fabric
           game-versions: ${{ inputs.minecraft_version }}
           dependencies: ${{ inputs.dependencies }}
-          java: 21
+          java: ${{ inputs.java }}
