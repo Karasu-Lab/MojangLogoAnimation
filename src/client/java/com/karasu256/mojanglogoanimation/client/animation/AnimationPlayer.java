@@ -62,7 +62,7 @@ public class AnimationPlayer {
         MinecraftClient client = MinecraftClient.getInstance();
         client.execute(() ->
                 client.getSoundManager().play(
-                        PositionedSoundInstance.master(event, 1.0f, soundVolume)
+                        PositionedSoundInstance.ui(event, 1.0f, soundVolume)
                 )
         );
     }

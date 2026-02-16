@@ -125,7 +125,7 @@ public abstract class SplashOverlayMixin {
         return (isFirstLoad && !animFinished) || reloading;
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;init(Lnet/minecraft/client/MinecraftClient;II)V"), method = "tick")
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;init(II)V"), method = "tick")
     private void onFirstLoadComplete(CallbackInfo ci) {
         if (animationPlayer != null) {
             animationPlayer.markLoadComplete();
