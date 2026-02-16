@@ -5,9 +5,9 @@ import com.karasu256.mojanglogoanimation.client.MojanglogoanimationClient;
 import com.karasu256.mojanglogoanimation.client.animation.AnimationPlayer;
 import com.karasu256.mojanglogoanimation.client.animation.ISplashScreenAnimationData;
 import com.karasu256.mojanglogoanimation.client.config.ModConfig;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.SplashOverlay;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.resource.ResourceReload;
 import net.minecraft.util.Identifier;
 import org.objectweb.asm.Opcodes;
@@ -19,8 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.function.Function;
+import net.minecraft.client.gl.RenderPipelines;
 
 @Mixin(SplashOverlay.class)
 public abstract class SplashOverlayMixin {
@@ -57,16 +56,16 @@ public abstract class SplashOverlayMixin {
         return this.reload.getProgress();
     }
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;fill(Lnet/minecraft/client/render/RenderLayer;IIIII)V"))
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;fill(IIIII)V"))
     private void fill(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
     }
 
-    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIFFIIIIIII)V", ordinal = 0))
-    private void drawTexture0(DrawContext context, Function<Identifier, RenderLayer> renderLayers,
-                              Identifier texture, int x, int y, float u, float v, int width, int height,
-                              int uWidth, int vHeight, int textureWidth, int textureHeight, int color) {
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/util/Identifier;IIFFIIIIIII)V", ordinal = 0))
+    private void drawTexture0(DrawContext context, RenderPipeline pipeline,
+            Identifier texture, int x, int y, float u, float v, int width, int height,
+            int uWidth, int vHeight, int textureWidth, int textureHeight, int color) {
         if (!this.reload.isComplete()) {
-            context.drawTexture(renderLayers, texture, x, y, u, v, width, height, uWidth, vHeight,
+            context.drawTexture(pipeline, texture, x, y, u, v, width, height, uWidth, vHeight,
                     textureWidth, textureHeight, color);
             return;
         }
@@ -82,17 +81,17 @@ public abstract class SplashOverlayMixin {
                 ? animationPlayer.getCurrentTexture()
                 : texture;
 
-        context.drawTexture(RenderLayer::getGuiTextured, currentTexture, x, y, 0.0F, 0.0F, width * 2, height,
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, currentTexture, x, y, 0.0F, 0.0F, width * 2, height,
                 textureWidth, textureHeight,
                 textureWidth, textureHeight, color);
     }
 
-    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIFFIIIIIII)V", ordinal = 1))
-    private void drawTexture1(DrawContext context, Function<Identifier, RenderLayer> renderLayers,
-                              Identifier texture, int x, int y, float u, float v, int width, int height,
-                              int uWidth, int vHeight, int textureWidth, int textureHeight, int color) {
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/util/Identifier;IIFFIIIIIII)V", ordinal = 1))
+    private void drawTexture1(DrawContext context, RenderPipeline pipeline,
+            Identifier texture, int x, int y, float u, float v, int width, int height,
+            int uWidth, int vHeight, int textureWidth, int textureHeight, int color) {
         if (!this.reload.isComplete()) {
-            context.drawTexture(renderLayers, texture, x, y, u, v, width, height, uWidth, vHeight,
+            context.drawTexture(pipeline, texture, x, y, u, v, width, height, uWidth, vHeight,
                     textureWidth, textureHeight, color);
         }
     }
@@ -106,7 +105,7 @@ public abstract class SplashOverlayMixin {
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;init(Lnet/minecraft/client/MinecraftClient;II)V"), method = "render")
     private void onFirstLoadComplete(DrawContext context, int mouseX, int mouseY,
-                                     float delta, CallbackInfo ci) {
+            float delta, CallbackInfo ci) {
         if (animationPlayer != null) {
             animationPlayer.markLoadComplete();
         }
