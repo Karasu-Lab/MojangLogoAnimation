@@ -1,16 +1,41 @@
 name: release-please
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
+      inputs:
+        modrinth_project_id:
+          type: string
+          required: true
+        modrinth_token:
+          type: string
+          required: true
+        curseforge_project_id:
+          type: string
+          required: true
+        curseforge_token:
+          type: string
+          required: true
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
+  load-config:
+    runs-on: ubuntu-latest
+    outputs:
+      java_version: ${{ steps.loader.outputs.java_version }}
+      loaders: ${{ steps.loader.outputs.loaders }}
+      mc_publish_deps: ${{ steps.loader.outputs.mc_publish_deps }}
+      curseforge_deps: ${{ steps.loader.outputs.curseforge_deps }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load Config
+        id: loader
+        uses: ./.github/workflows/release/action-loader.yml
+
   release-please:
+    needs: load-config
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
@@ -46,13 +71,8 @@ jobs:
           echo "minecraft_version=$MINECRAFT_VERSION" >> $GITHUB_OUTPUT
           echo "mod_version=$MOD_VERSION" >> $GITHUB_OUTPUT
 
-  get-deps:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created }}
-    uses: ./.github/workflows/get-deps.yml
-
   build:
-    needs: [release-please, extract-properties, get-deps]
+    needs: [release-please, extract-properties, load-config]
     if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ubuntu-latest
     steps:
@@ -61,7 +81,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: ${{ needs.get-deps.outputs.java_version }}
+          java-version: ${{ needs.load-config.outputs.java_version }}
           distribution: 'temurin'
 
       - name: Grant execute permission for gradlew
@@ -79,7 +99,7 @@ jobs:
   upload-github-release:
     needs: [release-please, extract-properties, build]
     if: ${{ needs.release-please.outputs.release_created }}
-    uses: ./.github/workflows/upload-github-release.yml
+    uses: ./.github/workflows/release/upload-github-release.yml
     with:
       version: ${{ needs.release-please.outputs.tag_name }}
       changelog: ${{ needs.release-please.outputs.body }}
@@ -89,29 +109,33 @@ jobs:
     secrets: inherit
 
   publish-curseforge:
-    needs: [release-please, extract-properties, get-deps, build]
+    needs: [release-please, extract-properties, load-config, build]
     if: ${{ needs.release-please.outputs.release_created }}
-    uses: ./.github/workflows/publish-curseforge.yml
+    uses: ./.github/workflows/release/publish-curseforge.yml
     with:
       version: ${{ needs.release-please.outputs.tag_name }}
       changelog: ${{ needs.release-please.outputs.body }}
       minecraft_version: ${{ needs.extract-properties.outputs.minecraft_version }}
       mod_version: ${{ needs.extract-properties.outputs.mod_version }}
       archives_base_name: ${{ needs.extract-properties.outputs.archives_base_name }}
-      dependencies: ${{ needs.get-deps.outputs.mc_publish_deps }}
-      java: ${{ needs.get-deps.outputs.java_version }}
+      dependencies: ${{ needs.load-config.outputs.mc_publish_deps }}
+      java: ${{ needs.load-config.outputs.java_version }}
+      curseforge_project_id: ${{ inputs.curseforge_project_id }}
+      curseforge_token: ${{ inputs.curseforge_token }}
     secrets: inherit
 
   publish-modrinth:
-    needs: [release-please, extract-properties, get-deps, build]
+    needs: [release-please, extract-properties, load-config, build]
     if: ${{ needs.release-please.outputs.release_created }}
-    uses: ./.github/workflows/publish-modrinth.yml
+    uses: ./.github/workflows/release/publish-modrinth.yml
     with:
       version: ${{ needs.release-please.outputs.tag_name }}
       changelog: ${{ needs.release-please.outputs.body }}
       minecraft_version: ${{ needs.extract-properties.outputs.minecraft_version }}
       mod_version: ${{ needs.extract-properties.outputs.mod_version }}
       archives_base_name: ${{ needs.extract-properties.outputs.archives_base_name }}
-      dependencies: ${{ needs.get-deps.outputs.mc_publish_deps }}
-      java: ${{ needs.get-deps.outputs.java_version }}
+      dependencies: ${{ needs.load-config.outputs.mc_publish_deps }}
+      java: ${{ needs.load-config.outputs.java_version }}
+      modrinth_project_id: ${{ inputs.modrinth_project_id }}
+      modrinth_token: ${{ inputs.modrinth_token }}
     secrets: inherit

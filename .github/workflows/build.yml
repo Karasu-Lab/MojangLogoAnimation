@@ -1,5 +1,5 @@
 name: build
-on: [pull_request, push]
+on: [workflow_dispatch]
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
       - name: Extract Java Version
         id: config
         run: |
-          JAVA_VERSION=$(jq -r '.java // 21' .github/build-config.json)
+          JAVA_VERSION=$(jq -r '.java // 21' karasulab-mod-releaser-config.json)
           echo "java_version=$JAVA_VERSION" >> $GITHUB_OUTPUT
       - name: setup jdk
         uses: actions/setup-java@v4

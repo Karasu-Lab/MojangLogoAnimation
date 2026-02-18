@@ -1,0 +1,104 @@
+name: Action Loader
+
+on:
+  workflow_call:
+    inputs:
+      config_path:
+        description: "Path to the config file"
+        required: false
+        default: "karasulab-mod-releaser-config.json"
+        type: string
+    outputs:
+      java_version:
+        description: "Java version"
+        value: ${{ jobs.load.outputs.java_version }}
+      loaders:
+        description: "JSON array of loaders"
+        value: ${{ jobs.load.outputs.loaders }}
+      mc_publish_deps:
+        description: "mc-publish format dependencies string"
+        value: ${{ jobs.load.outputs.mc_publish_deps }}
+      curseforge_deps:
+        description: "CurseForge relation string (slug:type)"
+        value: ${{ jobs.load.outputs.curseforge_deps }}
+
+jobs:
+  load:
+    runs-on: ubuntu-latest
+    outputs:
+      java_version: ${{ steps.config.outputs.java_version }}
+      loaders: ${{ steps.config.outputs.loaders }}
+      mc_publish_deps: ${{ steps.deps.outputs.mc_publish_deps }}
+      curseforge_deps: ${{ steps.deps.outputs.curseforge_deps }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load Config
+        id: config
+        run: |
+          CONFIG_FILE="${{ inputs.config_path }}"
+          if [ ! -f "$CONFIG_FILE" ]; then
+            echo "Config file not found: $CONFIG_FILE"
+            exit 1
+          fi
+
+          JAVA_VERSION=$(jq -r '.java // 21' "$CONFIG_FILE")
+          LOADERS=$(jq -c '.loaders // ["fabric"]' "$CONFIG_FILE")
+
+          echo "java_version=$JAVA_VERSION" >> $GITHUB_OUTPUT
+          echo "loaders=$LOADERS" >> $GITHUB_OUTPUT
+
+      - name: Resolve Dependencies
+        id: deps
+        run: |
+          set -euo pipefail
+          CONFIG_FILE="${{ inputs.config_path }}"
+          
+          # Extract modImplementation and modApi lines from build.gradle
+          # Captures: group:artifact from Maven coordinate patterns
+          GRADLE_DEPS=$(grep -oP '(modImplementation|modApi)\s*[\("]+([^"]+):([^":]+):' build.gradle \
+            | grep -oP '[a-z][a-z0-9._-]+:[a-z][a-z0-9._-]+' \
+            | sort -u)
+
+          MC_PUBLISH_DEPS=""
+          CF_DEPS=""
+
+          while IFS= read -r maven_coord; do
+            [ -z "$maven_coord" ] && continue
+
+            # Look up in config dependencies object
+            ENTRY=$(jq -r --arg key "$maven_coord" '.dependencies[$key] // empty' "$CONFIG_FILE")
+            [ -z "$ENTRY" ] && continue
+
+            NAME=$(echo "$ENTRY" | jq -r '.name')
+            TYPE=$(echo "$ENTRY" | jq -r '.type')
+            MODRINTH_ID=$(echo "$ENTRY" | jq -r '.modrinth // empty')
+            CF_ID=$(echo "$ENTRY" | jq -r '.curseforge // empty')
+
+            # mc-publish format: name@version(type){modrinth:id}{curseforge:id}
+            # Only add platform blocks if IDs exist
+            PLATFORM_BLOCK=""
+            [ -n "$MODRINTH_ID" ] && PLATFORM_BLOCK="${PLATFORM_BLOCK}{modrinth:${MODRINTH_ID}}"
+            [ -n "$CF_ID" ] && PLATFORM_BLOCK="${PLATFORM_BLOCK}{curseforge:${CF_ID}}"
+
+            MC_PUBLISH_DEPS="${MC_PUBLISH_DEPS}${NAME}@*($TYPE)${PLATFORM_BLOCK}
+          "
+
+            # CurseForge relation format: slug:requiredDependency
+            CF_TYPE="requiredDependency"
+            [ "$TYPE" = "optional" ] && CF_TYPE="optionalDependency"
+            CF_DEPS="${CF_DEPS}${NAME}:${CF_TYPE},"
+
+          done <<< "$GRADLE_DEPS"
+
+          # Remove trailing newline/comma
+          CF_DEPS="${CF_DEPS%,}"
+
+          # Write to outputs
+          {
+            echo "mc_publish_deps<<DEPS_EOF"
+            echo "$MC_PUBLISH_DEPS"
+            echo "DEPS_EOF"
+          } >> $GITHUB_OUTPUT
+
+          echo "curseforge_deps=$CF_DEPS" >> $GITHUB_OUTPUT

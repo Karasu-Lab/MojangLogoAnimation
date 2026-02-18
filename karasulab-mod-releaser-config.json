@@ -1,0 +1,26 @@
+{
+    "java": 25,
+    "loaders": [
+        "fabric"
+    ],
+    "dependencies": {
+        "net.fabricmc.fabric-api:fabric-api": {
+            "name": "fabric-api",
+            "type": "required",
+            "modrinth": "P7dR8mSH",
+            "curseforge": "306612"
+        },
+        "me.shedaniel.cloth:cloth-config-fabric": {
+            "name": "cloth-config",
+            "type": "required",
+            "modrinth": "9s6osm5g",
+            "curseforge": "348521"
+        },
+        "com.terraformersmc:modmenu": {
+            "name": "modmenu",
+            "type": "optional",
+            "modrinth": "mOgUt4GM",
+            "curseforge": "308702"
+        }
+    }
+}
