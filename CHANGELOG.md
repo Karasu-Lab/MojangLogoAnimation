@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.12.1](https://github.com/Karasu-Lab/MojangLogoAnimation/compare/v1.12.0...v1.12.1) (2026-02-18)
+
+
+### Bug Fixes
+
+* added comment ([34762a2](https://github.com/Karasu-Lab/MojangLogoAnimation/commit/34762a2f2c2ea1d26320db60875f6ebc30505b7c))
+* added comment ([43cd179](https://github.com/Karasu-Lab/MojangLogoAnimation/commit/43cd17972a4105260fbd7cf7f0dbaec1c366c7a4))
+
 ## [1.12.0](https://github.com/Karasu-Lab/MojangLogoAnimation/compare/v1.11.0...v1.12.0) (2026-02-16)
 
 
