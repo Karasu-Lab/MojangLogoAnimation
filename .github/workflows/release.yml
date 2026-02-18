@@ -1,0 +1,22 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: KarasuLab Mod Releaser
+        uses: Karasu-Lab/Karasu-Lab-Mod-Releaser@v1
+        with:
+          modrinth_project_id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth_token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge_project_id: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          curseforge_token: ${{ secrets.CURSEFORGE_TOKEN }}
