@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: KarasuLab Mod Releaser
-        uses: Karasu-Lab/Karasu-Lab-Mod-Releaser@v1
+        uses: Karasu-Lab/Karasu-Lab-Mod-Releaser@v2
         with:
           modrinth_project_id: ${{ vars.MODRINTH_PROJECT_ID }}
           modrinth_token: ${{ secrets.MODRINTH_TOKEN }}

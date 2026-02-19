@@ -3,6 +3,7 @@
     "loaders": [
         "fabric"
     ],
+    "release_title_format": "{archives_base_name} {mod_version} for MC {minecraft_version}",
     "dependencies": {
         "net.fabricmc.fabric-api:fabric-api": {
             "name": "fabric-api",
